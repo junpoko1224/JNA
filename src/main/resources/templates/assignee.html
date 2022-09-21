@@ -1,0 +1,190 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>配属先編集</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+
+    <!-- jquery -->
+    <script src="https://code.jquery.com/jquery-3.3.1.js"></script>
+
+    <!-- semantic.css  -->
+    <link rel="stylesheet" type="text/css"
+          href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.3.3/semantic.min.css">
+    <script src="https://kit.fontawesome.com/ec16e63d2c.js" crossorigin="anonymous"></script>
+
+    <!-- semantic.js  -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.3.3/semantic.min.js"></script>
+
+    <!-- tablesort.js -->
+    <script src="https://semantic-ui.com/javascript/library/tablesort.js"></script>
+
+    <script th:src="@{/js/assignee.js}"></script>
+
+    <link th:href="@{/css/assignee.css}" rel="stylesheet">
+
+</head>
+
+<body>
+<!-- th:replaceを使用して、 メニュー用のフラグメントを読込みます -->
+<div th:replace="common/menu :: menu_fragment"></div>
+
+<div class="ui container">
+    <h2 class="ui header">[[${msg}]]</h2>
+    <div class="ui container" th:object="${assigneeRequest}">
+
+        <div class="ui error message" th:if="${#fields.hasErrors('*')}">
+            <div class="header">
+                エラー
+            </div>
+            <ul class="list">
+                <li th:each="err : ${#fields.errors('*')}" th:text="${err}"></li>
+            </ul>
+        </div>
+
+        <div class="ui success message" th:if="${register_complete}">
+            <div class="header">
+                成功
+            </div>
+            <p th:text="#{register.complete}"></p>
+        </div>
+
+        <div class="ui success message" th:if="${delete_complete}">
+            <div class="header">
+                成功
+            </div>
+            <p th:text="#{delete.complete}"></p>
+        </div>
+
+        <div class="ui success message" th:if="${editor_complete}">
+            <div class="header">
+                成功
+            </div>
+            <p th:text="#{editor.complete}"></p>
+        </div>
+
+
+        <form class="ui form" method="post" th:action="@{/assignee/register}">
+
+            <h3 class="ui dividing header">
+                <i class="fa-solid fa-pen"></i>
+                配属先追加
+            </h3>
+
+            <div class="ui grid">
+                <div class="one wide column">
+                </div>
+
+                <div class="five wide column">
+                    <div class="ui large labeled input">
+                        <label class="ui orange label">配属先</label>
+                        <input type="text" th:field="*{assigneeName}" placeholder="追加する営業所名を入力">
+                    </div>
+
+                </div>
+
+                <div class="ten wide column">
+                    <button class="ui large red button">追加</button>
+                </div>
+            </div>
+        </form>
+        <br><br>
+
+        <div class="fifteen wide column" th:if="${assigneeResponse != null}">
+            <h4 class="ui dividing header">
+                営業所一覧 <!--viewerResponse修正？-->
+            </h4>
+
+            <table class="ui sortable orange celled table">
+                <thead>
+                <tr>
+                    <th>No</th>
+                    <th>配属先</th>
+                    <th></th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="response, responseStat : ${assigneeResponse.responseList}">
+                    <td th:text="${responseStat.count}"></td>
+                    <td th:text="${response.getAssigneeName()}"></td>
+                    <td>
+                        <div class="ui buttons">
+                            <button type="button" class="ui red button" name="editorButton"
+                                    th:data-assigneeId="${response.getAssigneeId()}"
+                                    th:data-assigneeName="${response.getAssigneeName()}">
+                                編集
+                            </button>
+                            <div class="or"></div>
+                            <button type="button" class="ui olive button" name="deleteButton"
+                                    th:data-assigneeId="${response.getAssigneeId()}"
+                                    th:data-assigneeName="${response.getAssigneeName()}">
+                                削除
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- action属性はjsファイルで動的に変更 -->
+        <!--削除ボタン-->
+        <form name="deleteFormModal" method="GET">
+            <div class="ui basic modal" id="deleteModal">
+                <div class="ui icon header">
+                    <i class="trash alternate icon"></i>
+                    削除しますか？
+                </div>
+                <div class="content">
+                    <p class="modal__p" id="delAssigneeName"/>
+                </div>
+                <div class="actions">
+                    <div class="ui red basic cancel inverted button">
+                        <i class="remove icon"></i>
+                        キャンセル
+                    </div>
+                    <a href="javascript:deleteFormModal.submit()">
+                        <div class="ui green ok inverted button">
+                            <i class="checkmark icon"></i>
+                            削除
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </form>
+        <!--編集ボタン-->
+        <form name="updateFormModal" method="GET">
+            <div class="ui basic modal" id="updateModal">
+                <div class="ui icon header">
+                    <i class="fa-solid fa-pen"></i>
+                    編集しますか？
+                </div>
+                <div class="ui center aligned grid">
+                    <div class="one wide row"></div>
+                    <div class="eight wide column">
+                        <div class="ui labeled input">
+                            <label class="ui orange label">配属先</label>
+                            <input type="hidden" id="updateAssigneeId">
+                            <input type="text" id="updateAssigneeName">
+                        </div>
+                    </div>
+                </div>
+                <div class="actions">
+                    <div class="ui red basic cancel inverted button">
+                        <i class="remove icon"></i>
+                        キャンセル
+                    </div>
+
+                    <button type="button" class="ui green ok inverted button" name="updateButton">
+                        <i class="checkmark" icon></i>
+                        更新
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+</body>
+<br>
+<br>
+<br>
+</html>

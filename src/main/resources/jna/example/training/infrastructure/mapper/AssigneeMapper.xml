@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="jna.example.training.infrastructure.mapper.AssigneeMapper">
+    <select id="getAssigneeList" resultType="jna.example.training.infrastructure.entity.AssigneeEntity">
+        SELECT
+        *
+        From m_assignee
+    </select>
+
+    <insert id="save">
+        INSERT INTO m_assignee
+        (
+            assignee_id
+            ,assignee_name
+        )
+        VALUES
+        (
+            #{assigneeId}
+            ,#{assigneeName}
+        )
+    </insert>
+
+    <delete id="delete">
+        DELETE FROM
+            m_assignee
+        WHERE
+            <if test="assigneeId != ''">
+                assignee_id = #{assigneeId}
+            </if>
+    </delete>
+
+    <update id="update">
+        UPDATE
+            m_assignee
+        SET
+            assignee_name=#{assigneeName}
+        WHERE
+            assignee_id=#{assigneeId}
+    </update>
+
+</mapper>

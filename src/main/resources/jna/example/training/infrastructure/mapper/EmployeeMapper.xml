@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="jna.example.training.infrastructure.mapper.EmployeeMapper">
+
+    <select id="search" resultType="jna.example.training.infrastructure.entity.EmployeeEntity">
+        SELECT
+            t_emp.emp_no,
+            t_emp.user_name,
+            t_emp.password,
+            t_emp.birth_date,
+            t_emp.sex_id,
+            m_sex.sex_name,
+            t_emp.birth_place_id,
+            m_pre.place_name,
+            t_emp.nick_name,
+            t_emp.assignee_id,
+            m_ass.assignee_name,
+            t_emp.photo,
+            t_emp.update_at,
+            t_emp.create_at
+        FROM
+            t_employee AS t_emp
+                LEFT JOIN
+                    m_sex AS m_sex
+                ON
+                    t_emp.sex_id = m_sex.sex_id
+                LEFT JOIN
+                    m_prefectures AS m_pre
+                ON
+                    t_emp.birth_place_id = m_pre.place_id
+                LEFT JOIN
+                    m_assignee AS m_ass
+                ON
+                    t_emp.assignee_id = m_ass.assignee_id
+        <choose>
+            <when test="empNo != '' and userName == ''">
+                WHERE
+                t_emp.emp_no like '%${empNo}%'
+            </when>
+            <when test="empNo == '' and userName != ''">
+                WHERE
+                t_emp.user_name like '%${userName}%'
+            </when>
+            <when test="empNo != '' and userName != ''">
+                WHERE
+                t_emp.emp_no like '%${empNo}%'
+                AND t_emp.user_name like '%${userName}%'
+            </when>
+        </choose>
+        ORDER BY t_emp.birth_date DESC
+    </select>
+
+    <select id="searchById" resultType="jna.example.training.infrastructure.entity.EmployeeEntity">
+        SELECT
+        t_emp.emp_no,
+        t_emp.user_name,
+        t_emp.password,
+        t_emp.birth_date,
+        t_emp.sex_id,
+        m_sex.sex_name,
+        t_emp.birth_place_id,
+        m_pre.place_name,
+        t_emp.nick_name,
+        t_emp.assignee_id,
+        m_ass.assignee_name,
+        t_emp.photo,
+        t_emp.update_at,
+        t_emp.create_at
+        FROM
+        t_employee AS t_emp
+        ,m_sex AS m_sex
+        ,m_prefectures AS m_pre
+        ,m_assignee AS m_ass
+        where
+        t_emp.sex_id = m_sex.sex_id
+        AND t_emp.birth_place_id = m_pre.place_id
+        AND t_emp.assignee_id = m_ass.assignee_id
+        <if test="empNo != ''">
+            AND t_emp.emp_no like '%${empNo}%'
+        </if>
+    </select>
+
+    <insert id="save" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO t_employee
+        (
+            emp_no
+            ,user_name
+            ,password
+            ,birth_date
+            ,sex_id
+            ,birth_place_id
+            ,nick_name
+            ,assignee_id
+            ,photo
+        <if test="updateAt != null">
+            ,update_at
+        </if>
+        <if test="createAt != null">
+            ,create_at
+        </if>
+        )
+        VALUES
+        (
+            #{empNo}
+            ,#{userName}
+            ,#{password}
+            ,#{birthDate}
+            ,#{sexId}
+            ,#{birthPlaceId}
+            ,#{nickName}
+            ,#{assigneeId}
+            ,#{photo}
+        <if test="updateAt != null">
+            ,#{updateAt}
+        </if>
+        <if test="createAt != null">
+            ,#{createAt}
+        </if>
+        )
+    </insert>
+
+    <delete id="deleteById">
+        DELETE FROM
+            t_employee
+        WHERE
+            <if test="empNo != ''">
+                emp_no = #{empNo}
+            </if>
+    </delete>
+
+    <update id="update">
+        UPDATE
+            t_employee
+        SET
+            emp_no=#{empNo}
+            ,user_name=#{userName}
+            ,password=#{password}
+            ,birth_date=#{birthDate}
+            ,sex_id=#{sexId}
+            ,birth_place_id=#{birthPlaceId}
+            ,nick_name=#{nickName}
+            ,assignee_id=#{assigneeId}
+            ,photo=#{photo}
+            <if test="updateAt != null">
+                ,update_at=#{updateAt}
+            </if>
+            <if test="createAt != null">
+                ,create_at=#{createAt}
+            </if>
+        WHERE
+            <if test="empNo != ''">
+                emp_no = #{empNo}
+            </if>
+    </update>
+
+</mapper>
